@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amazon Sales Estimator</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Urbanist:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'deep-navy': '#0B1D3A',
+                        'deep-navy-lighter': '#112444',
+                        'slate-gray': '#4B5563',
+                        'bright-blue': '#2563EB',
+                        'soft-white': '#F9FAFB',
+                        'accent-green': '#22C55E',
+                    },
+                    fontFamily: {
+                        'sans': ['Urbanist', 'sans-serif'],
+                        'manrope': ['Manrope', 'sans-serif'],
+                    },
+                    animation: {
+                        fadeIn: 'fadeIn 0.5s ease-in-out',
+                        shake: 'shake 0.4s ease-in-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: 0, transform: 'translateY(10px)' },
+                            '100%': { opacity: 1, transform: 'translateY(0)' },
+                        },
+                        shake: {
+                            '0%, 100%': { transform: 'translateX(0)' },
+                            '25%': { transform: 'translateX(-8px)' },
+                            '75%': { transform: 'translateX(8px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Urbanist', sans-serif;
+        }
+
+        .font-manrope {
+            font-family: 'Manrope', sans-serif;
+        }
+
+        /* Custom select dropdown arrow for light mode */
+        .select-light {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%234B5563' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+        }
+
+        /* Custom select dropdown arrow for dark mode */
+        .select-dark {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23F9FAFB' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+        }
+
+        .bg-right-4 {
+            background-position: right 1rem center;
+        }
+    </style>
+</head>
+<body class="font-sans">
+    <div id="app" class="bg-soft-white dark:bg-deep-navy min-h-screen text-deep-navy dark:text-soft-white flex flex-col items-center p-4 sm:p-6 md:p-8 transition-colors duration-300">
+        <div class="container mx-auto max-w-5xl w-full">
+            <!-- Theme Toggle -->
+            <div class="w-full flex justify-end mb-4 -mt-2 sm:-mt-0">
+                <button
+                    id="themeToggle"
+                    class="p-2 rounded-full bg-slate-gray/10 dark:bg-slate-gray/20 text-slate-gray dark:text-soft-white/80 hover:bg-slate-gray/20 dark:hover:bg-slate-gray/30 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-bright-blue"
+                    aria-label="Toggle theme"
+                >
+                    <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278zM4.858 1.311A7.269 7.269 0 0 0 1.025 7.71c0 4.021 3.278 7.277 7.319 7.277a7.316 7.316 0 0 0 5.205-2.162c-.337.042-.68.063-1.029.063-4.61 0-8.343-3.714-8.343-8.29 0-1.167.242-2.278.681-3.286z"/>
+                    </svg>
+                    <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16" style="display: none;">
+                        <path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707z"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Header -->
+            <header class="text-center mb-8 sm:mb-12 pt-4 sm:pt-0">
+                <h1 class="font-manrope text-3xl sm:text-4xl md:text-5xl font-extrabold mb-2 text-deep-navy dark:text-soft-white">
+                    Amazon Sales Estimator
+                </h1>
+                <p class="text-base sm:text-lg text-slate-gray italic">
+                    Evidence-based monthly sales predictions for Amazon sellers
+                </p>
+            </header>
+
+            <!-- Main Content -->
+            <main class="bg-white dark:bg-deep-navy-lighter border border-slate-gray/20 dark:border-slate-gray/30 rounded-2xl shadow-2xl shadow-slate-gray/10 dark:shadow-black/20 p-6 sm:p-8 md:p-12">
+                <!-- Calculator Form -->
+                <form id="calculatorForm">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <!-- Category Input -->
+                        <div class="flex flex-col gap-2">
+                            <label class="font-manrope font-bold text-sm text-slate-gray dark:text-soft-white/90">Amazon Product Category</label>
+                            <select
+                                id="category"
+                                class="w-full px-4 py-3 text-base border-2 rounded-xl bg-soft-white dark:bg-deep-navy border-slate-gray/30 dark:border-slate-gray/70 text-deep-navy dark:text-soft-white placeholder:text-slate-gray/60 dark:placeholder:text-slate-gray/40 transition-colors duration-300 focus:outline-none focus:border-bright-blue focus:ring-2 focus:ring-bright-blue/50 appearance-none bg-no-repeat bg-right-4 select-light dark:select-dark"
+                            >
+                                <option value="" disabled selected>Select a category...</option>
+                            </select>
+                        </div>
+
+                        <!-- BSR Input -->
+                        <div class="flex flex-col gap-2">
+                            <label class="font-manrope font-bold text-sm text-slate-gray dark:text-soft-white/90">Best Seller Rank (BSR)</label>
+                            <input
+                                type="text"
+                                inputmode="numeric"
+                                id="bsr"
+                                placeholder="e.g., 1,000"
+                                class="w-full px-4 py-3 text-base border-2 rounded-xl bg-soft-white dark:bg-deep-navy border-slate-gray/30 dark:border-slate-gray/70 text-deep-navy dark:text-soft-white placeholder:text-slate-gray/60 dark:placeholder:text-slate-gray/40 transition-colors duration-300 focus:outline-none focus:border-bright-blue focus:ring-2 focus:ring-bright-blue/50"
+                            />
+                        </div>
+
+                        <!-- Price Input -->
+                        <div class="flex flex-col gap-2">
+                            <label class="font-manrope font-bold text-sm text-slate-gray dark:text-soft-white/90">Product Price (Optional)</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-gray pointer-events-none">$</span>
+                                <input
+                                    type="number"
+                                    id="price"
+                                    placeholder="29.99"
+                                    min="0.01"
+                                    step="0.01"
+                                    class="w-full pl-7 px-4 py-3 text-base border-2 rounded-xl bg-soft-white dark:bg-deep-navy border-slate-gray/30 dark:border-slate-gray/70 text-deep-navy dark:text-soft-white placeholder:text-slate-gray/60 dark:placeholder:text-slate-gray/40 transition-colors duration-300 focus:outline-none focus:border-bright-blue focus:ring-2 focus:ring-bright-blue/50"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Error Message -->
+                    <div id="errorMessage" class="bg-red-500/10 border-2 border-red-500/20 text-red-400 px-4 py-3 rounded-xl mt-4 text-center text-sm animate-shake" style="display: none;"></div>
+
+                    <!-- Buttons -->
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+                        <button
+                            type="submit"
+                            class="font-manrope w-full sm:w-auto font-bold text-base uppercase tracking-wider px-10 py-4 rounded-xl bg-gradient-to-r from-bright-blue to-blue-700 text-soft-white shadow-lg shadow-bright-blue/30 hover:shadow-bright-blue/40 transition-all duration-300 transform hover:-translate-y-1"
+                        >
+                            Calculate Sales
+                        </button>
+                        <button
+                            type="button"
+                            id="resetButton"
+                            class="font-manrope w-full sm:w-auto font-bold text-base uppercase tracking-wider px-10 py-4 rounded-xl bg-slate-gray/10 dark:bg-slate-gray/20 border-2 border-slate-gray/20 dark:border-slate-gray/50 text-slate-gray dark:text-soft-white hover:bg-slate-gray/20 dark:hover:bg-slate-gray/40 hover:border-slate-gray/40 dark:hover:border-slate-gray/70 transition-colors duration-300"
+                        >
+                            Reset
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Results Display -->
+                <div id="resultsDisplay" style="display: none;" class="mt-8 sm:mt-12 animate-fadeIn"></div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Sales Data
+        const SALES_DATA = {
+            "Appliances": {"coefficient": 11162, "exponent": -0.823, "data": [[1,5760],[10,1650],[25,900],[50,510],[100,300],[250,120],[500,60],[1000,30],[1500,30]]},
+            "Arts, Crafts & Sewing": {"coefficient": 569286, "exponent": -0.826, "data": [[1,48090],[10,23730],[25,16740],[50,12450],[100,8970],[250,5550],[500,3690],[1000,2370],[1500,1770],[2000,1440],[3000,1050],[5000,690],[7500,480],[10000,360],[15000,240],[25000,150],[50000,60],[75000,30],[100000,30],[125000,30]]},
+            "Automotive": {"coefficient": 391465, "exponent": -0.769, "data": [[1,40080],[10,20160],[25,14430],[50,10890],[100,8010],[250,5100],[500,3510],[1000,2310],[1500,1800],[2000,1470],[3000,1110],[5000,750],[7500,540],[10000,450],[15000,300],[25000,180],[50000,90],[75000,60],[100000,60],[125000,30],[150000,30],[175000,30],[200000,30],[225000,30],[250000,30],[275000,30]]},
+            "Baby Products": {"coefficient": 2880000, "exponent": -1.0, "data": [[1,83010],[10,48810],[25,36030],[50,27330],[100,19740],[250,11790],[500,7350],[1000,4230],[1500,2940],[2000,2220],[3000,1440],[5000,780],[7500,450],[10000,300],[15000,180],[25000,60],[50000,30]]},
+            "Beauty & Personal Care": {"coefficient": 6730000, "exponent": -0.967, "data": [[1,179010],[10,100860],[25,74400],[50,57030],[100,42180],[250,26580],[500,17760],[1000,11220],[1500,8370],[2000,6690],[3000,4770],[5000,3030],[7500,2040],[10000,1500],[15000,960],[25000,510],[50000,210],[75000,120],[100000,60],[125000,60],[150000,30],[175000,30],[200000,30]]},
+            "Camera & Photo": {"coefficient": 456100, "exponent": -1.21, "data": [[1,25830],[10,9060],[25,5130],[50,3090],[100,1740],[250,690],[500,330],[1000,120],[1500,60],[2000,30],[3000,30]]},
+            "Cell Phones & Accessories": {"coefficient": 1810000, "exponent": -0.928, "data": [[1,130860],[10,58050],[25,38610],[50,27300],[100,18600],[250,10530],[500,6480],[1000,3780],[1500,2700],[2000,2100],[3000,1440],[5000,870],[7500,570],[10000,420],[15000,240],[25000,120],[50000,60],[75000,30]]},
+            "Clothing, Shoes & Jewelry": {"coefficient": 897804, "exponent": -0.713, "data": [[1,54660],[10,37530],[25,30600],[50,25530],[100,20760],[250,15060],[500,11310],[1000,8160],[1500,6600],[2000,5610],[3000,4410],[5000,3150],[7500,2340],[10000,1890],[15000,1350],[25000,840],[50000,420],[75000,270],[100000,180],[125000,150],[150000,120],[175000,90],[200000,60],[225000,60],[250000,60],[275000,60],[300000,30],[325000,30],[350000,30],[375000,30],[400000,30],[425000,30],[450000,30],[475000,30],[500000,30],[525000,30]]},
+            "Computers & Accessories": {"coefficient": 217913, "exponent": -0.912, "data": [[1,19830],[10,9120],[25,6060],[50,4260],[100,2850],[250,1560],[500,930],[1000,510],[1500,330],[2000,270],[3000,180],[5000,90],[7500,60],[10000,30],[15000,30]]},
+            "Electronics": {"coefficient": 705246, "exponent": -0.889, "data": [[1,56940],[10,27090],[25,18510],[50,13350],[100,9270],[250,5240],[500,3330],[1000,1950],[1500,1410],[2000,1080],[3000,750],[5000,450],[7500,300],[10000,210],[15000,120],[25000,60],[50000,30]]},
+            "Grocery & Gourmet Food": {"coefficient": 965552, "exponent": -0.828, "data": [[1,29310],[10,21120],[25,17450],[50,14640],[100,11880],[250,8520],[500,6270],[1000,4350],[1500,3420],[2000,2820],[3000,2130],[5000,1410],[7500,990],[10000,750],[15000,480],[25000,270],[50000,90],[75000,60],[100000,30],[125000,30]]},
+            "Health & Household": {"coefficient": 6050000, "exponent": -0.927, "data": [[1,113670],[10,77610],[25,62490],[50,51330],[100,40770],[250,28290],[500,20310],[1000,13770],[1500,10650],[2000,8730],[3000,6480],[5000,4260],[7500,2940],[10000,2220],[15000,1440],[25000,780],[50000,300],[75000,150],[100000,90],[125000,60],[150000,60],[175000,30],[200000,30],[225000,30]]},
+            "Home & Kitchen": {"coefficient": 960567, "exponent": -0.713, "data": [[1,95190],[10,54390],[25,41070],[50,32370],[100,24840],[250,16800],[500,12030],[1000,8310],[1500,6570],[2000,5520],[3000,4260],[5000,3000],[7500,2250],[10000,1800],[15000,1290],[25000,840],[50000,450],[75000,300],[100000,210],[125000,180],[150000,120],[175000,120],[200000,90],[225000,90],[250000,60],[275000,60],[300000,60],[325000,60],[350000,30],[375000,30],[400000,30],[425000,30],[450000,30],[475000,30],[500000,30],[525000,30],[550000,30],[575000,30],[600000,30]]},
+            "Industrial & Scientific": {"coefficient": 1860000, "exponent": -0.961, "data": [[1,351000],[10,90060],[25,49170],[50,30300],[100,18210],[250,8940],[500,5070],[1000,2790],[1500,1950],[2000,1500],[3000,1020],[5000,630],[7500,420],[10000,300],[15000,210],[25000,120],[50000,30],[75000,30]]},
+            "Kitchen & Dining": {"coefficient": 1150000, "exponent": -0.853, "data": [[1,59670],[10,32820],[25,24180],[50,18600],[100,13890],[250,8940],[500,6120],[1000,4020],[1500,3090],[2000,2520],[3000,1860],[5000,1230],[7500,870],[10000,690],[15000,450],[25000,270],[50000,120],[75000,60],[100000,30],[125000,30],[150000,30]]},
+            "Musical Instruments": {"coefficient": 101494, "exponent": -0.806, "data": [[1,12570],[10,6210],[25,4320],[50,3150],[100,2190],[250,1290],[500,810],[1000,480],[1500,330],[2000,270],[3000,180],[5000,120],[7500,60],[10000,60],[15000,30]]},
+            "Office Products": {"coefficient": 1610000, "exponent": -0.892, "data": [[1,123900],[10,54930],[25,36900],[50,26430],[100,18330],[250,10740],[500,6840],[1000,4170],[1500,3060],[2000,2430],[3000,1740],[5000,1110],[7500,750],[10000,570],[15000,390],[25000,210],[50000,90],[75000,60],[100000,30],[125000,30]]},
+            "Patio, Lawn & Garden": {"coefficient": 818716, "exponent": -0.835, "data": [[1,46860],[10,26280],[25,19470],[50,15030],[100,11250],[250,7260],[500,4950],[1000,3240],[1500,2460],[2000,2010],[3000,1470],[5000,960],[7500,690],[10000,510],[15000,360],[25000,210],[50000,90],[75000,60],[100000,30],[125000,30],[150000,30],[175000,30]]},
+            "Pet Supplies": {"coefficient": 2600000, "exponent": -0.932, "data": [[1,78510],[10,49260],[25,37800],[50,29730],[100,22410],[250,14340],[500,9540],[1000,5940],[1500,4320],[2000,3390],[3000,2340],[5000,1410],[7500,900],[10000,630],[15000,360],[25000,180],[50000,60],[75000,30]]},
+            "Software": {"coefficient": 47016, "exponent": -1.11, "data": [[1,1800],[10,360],[25,150],[50,60],[100,30],[250,30]]},
+            "Sports & Outdoors": {"coefficient": 882934, "exponent": -0.828, "data": [[1,52470],[10,28440],[25,21090],[50,16110],[100,12000],[250,7650],[500,5250],[1000,3390],[1500,2580],[2000,2100],[3000,1530],[5000,990],[7500,720],[10000,540],[15000,360],[25000,210],[50000,90],[75000,60],[100000,30],[125000,30],[150000,30]]},
+            "Tools & Home Improvement": {"coefficient": 1570000, "exponent": -0.858, "data": [[1,63360],[10,39390],[25,29400],[50,22530],[100,16590],[250,10440],[500,7020],[1000,4470],[1500,3390],[2000,2730],[3000,1950],[5000,1230],[7500,870],[10000,660],[15000,420],[25000,240],[50000,90],[75000,60],[100000,30],[125000,30]]},
+            "Toys & Games": {"coefficient": 666465, "exponent": -0.79, "data": [[1,46860],[10,26790],[25,20130],[50,15600],[100,11760],[250,7710],[500,5400],[1000,3600],[1500,2820],[2000,2340],[3000,1770],[5000,1200],[7500,900],[10000,720],[15000,510],[25000,330],[50000,180],[75000,120],[100000,90],[125000,60],[150000,60],[175000,60],[200000,30],[225000,30]]},
+            "Video Games": {"coefficient": 1130000, "exponent": -1.05, "data": [[1,25590],[10,10140],[25,6120],[50,3780],[100,2220],[250,1050],[500,600],[1000,330],[1500,240],[2000,180],[3000,120],[5000,60],[7500,30],[10000,30]]}
+        };
+
+        const CATEGORIES = Object.keys(SALES_DATA).sort();
+
+        // Initialize the app
+        let currentTheme = 'light';
+
+        // Populate categories dropdown
+        const categorySelect = document.getElementById('category');
+        CATEGORIES.forEach(cat => {
+            const option = document.createElement('option');
+            option.value = cat;
+            option.textContent = cat;
+            option.className = 'bg-soft-white text-deep-navy dark:bg-deep-navy dark:text-soft-white';
+            categorySelect.appendChild(option);
+        });
+
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const moonIcon = document.getElementById('moonIcon');
+        const sunIcon = document.getElementById('sunIcon');
+        const html = document.documentElement;
+
+        themeToggle.addEventListener('click', () => {
+            if (currentTheme === 'light') {
+                currentTheme = 'dark';
+                html.classList.add('dark');
+                moonIcon.style.display = 'none';
+                sunIcon.style.display = 'block';
+            } else {
+                currentTheme = 'light';
+                html.classList.remove('dark');
+                moonIcon.style.display = 'block';
+                sunIcon.style.display = 'none';
+            }
+        });
+
+        // BSR formatting
+        const bsrInput = document.getElementById('bsr');
+        bsrInput.addEventListener('input', (e) => {
+            const digitsOnly = e.target.value.replace(/\D/g, '');
+            e.target.value = digitsOnly.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        });
+
+        // Calculation functions
+        function interpolate(x, x1, y1, x2, y2) {
+            return y1 + (y2 - y1) * (x - x1) / (x2 - x1);
+        }
+
+        function calculatePowerLaw(bsr, coefficient, exponent) {
+            return coefficient * Math.pow(bsr, exponent);
+        }
+
+        function calculateSales(category, bsr) {
+            const categoryData = SALES_DATA[category];
+            const data = categoryData.data;
+
+            for (let i = 0; i < data.length - 1; i++) {
+                if (bsr >= data[i][0] && bsr <= data[i + 1][0]) {
+                    const sales = interpolate(bsr, data[i][0], data[i][1], data[i + 1][0], data[i + 1][1]);
+                    return {
+                        sales: Math.max(30, Math.round(sales / 30) * 30),
+                        method: 'interpolation',
+                    };
+                }
+            }
+
+            const sales = calculatePowerLaw(bsr, categoryData.coefficient, categoryData.exponent);
+            if (bsr < data[0][0]) {
+                return {
+                    sales: Math.max(30, Math.round(sales / 30) * 30),
+                    method: 'extrapolation',
+                };
+            }
+
+            return {
+                sales: Math.max(30, Math.round(sales / 30) * 30),
+                method: 'power_law',
+            };
+        }
+
+        function formatNumber(num) {
+            return num.toLocaleString('en-US');
+        }
+
+        function formatCurrency(num) {
+            return '$' + formatNumber(Math.round(num));
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function hideError() {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.style.display = 'none';
+        }
+
+        function displayResults(result, priceProvided) {
+            const resultsDiv = document.getElementById('resultsDisplay');
+
+            let html = `
+                <div class="space-y-8 pt-8 border-t-2 border-slate-gray/10 dark:border-slate-gray/20">
+                    <div class="flex justify-between items-center">
+                        <h2 class="font-manrope text-2xl sm:text-3xl font-bold text-deep-navy dark:text-soft-white">Sales & Revenue Analysis</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex flex-col justify-center p-6 rounded-2xl border-2 transition-all duration-300 hover:border-bright-blue/80 hover:-translate-y-1 hover:shadow-2xl hover:shadow-bright-blue/10 dark:hover:shadow-bright-blue/20 min-h-[140px] bg-accent-green/5 dark:bg-accent-green/10 border-accent-green/30 dark:border-accent-green/50">
+                            <div class="font-manrope text-sm font-semibold text-slate-gray dark:text-soft-white/70 uppercase tracking-wide mb-3">Estimated Monthly Sales</div>
+                            <div class="font-manrope text-3xl md:text-4xl font-extrabold text-deep-navy dark:text-soft-white">${formatNumber(result.monthlySales)}</div>
+                            <div class="text-sm text-slate-gray/80 dark:text-soft-white/50 font-medium mt-1">units/month</div>
+                        </div>
+                        <div class="flex flex-col justify-center p-6 rounded-2xl border-2 transition-all duration-300 hover:border-bright-blue/80 hover:-translate-y-1 hover:shadow-2xl hover:shadow-bright-blue/10 dark:hover:shadow-bright-blue/20 min-h-[140px] bg-slate-gray/5 dark:bg-slate-gray/10 border-slate-gray/20 dark:border-slate-gray/30">
+                            <div class="font-manrope text-sm font-semibold text-slate-gray dark:text-soft-white/70 uppercase tracking-wide mb-3">Daily Sales</div>
+                            <div class="font-manrope text-3xl md:text-4xl font-extrabold text-deep-navy dark:text-soft-white">${formatNumber(result.dailySales)}</div>
+                            <div class="text-sm text-slate-gray/80 dark:text-soft-white/50 font-medium mt-1">units/day</div>
+                        </div>
+                    </div>
+            `;
+
+            if (priceProvided) {
+                html += `
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="flex flex-col justify-center p-6 rounded-2xl border-2 transition-all duration-300 hover:border-bright-blue/80 hover:-translate-y-1 hover:shadow-2xl hover:shadow-bright-blue/10 dark:hover:shadow-bright-blue/20 min-h-[140px] bg-slate-gray/5 dark:bg-slate-gray/10 border-slate-gray/20 dark:border-slate-gray/30">
+                            <div class="font-manrope text-sm font-semibold text-slate-gray dark:text-soft-white/70 uppercase tracking-wide mb-3">Monthly Revenue</div>
+                            <div class="font-manrope text-3xl md:text-4xl font-extrabold text-accent-green">${formatCurrency(result.monthlyRevenue)}</div>
+                            <div class="text-sm text-slate-gray/80 dark:text-soft-white/50 font-medium mt-1">estimated</div>
+                        </div>
+                        <div class="flex flex-col justify-center p-6 rounded-2xl border-2 transition-all duration-300 hover:border-bright-blue/80 hover:-translate-y-1 hover:shadow-2xl hover:shadow-bright-blue/10 dark:hover:shadow-bright-blue/20 min-h-[140px] bg-slate-gray/5 dark:bg-slate-gray/10 border-slate-gray/20 dark:border-slate-gray/30">
+                            <div class="font-manrope text-sm font-semibold text-slate-gray dark:text-soft-white/70 uppercase tracking-wide mb-3">Daily Revenue</div>
+                            <div class="font-manrope text-3xl md:text-4xl font-extrabold text-accent-green">${formatCurrency(result.dailyRevenue)}</div>
+                            <div class="text-sm text-slate-gray/80 dark:text-soft-white/50 font-medium mt-1">average per day</div>
+                        </div>
+                        <div class="flex flex-col justify-center p-6 rounded-2xl border-2 transition-all duration-300 hover:border-bright-blue/80 hover:-translate-y-1 hover:shadow-2xl hover:shadow-bright-blue/10 dark:hover:shadow-bright-blue/20 min-h-[140px] bg-bright-blue/5 dark:bg-bright-blue/10 border-bright-blue/30 dark:border-bright-blue/50 md:col-span-1 lg:col-span-1">
+                            <div class="font-manrope text-sm font-semibold text-slate-gray dark:text-soft-white/70 uppercase tracking-wide mb-3">Annual Revenue Projection</div>
+                            <div class="font-manrope text-3xl md:text-4xl font-extrabold text-accent-green">${formatCurrency(result.annualRevenue)}</div>
+                            <div class="text-sm text-slate-gray/80 dark:text-soft-white/50 font-medium mt-1">12-month forecast</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            html += `
+                    <div class="bg-slate-gray/5 dark:bg-slate-gray/10 border border-slate-gray/10 dark:border-slate-gray/20 rounded-xl p-6">
+                        <h3 class="font-manrope text-sm font-bold text-slate-gray/80 dark:text-soft-white/60 uppercase tracking-wider mb-2">Calculation Method</h3>
+                        <p class="text-slate-gray dark:text-soft-white/70 text-sm leading-relaxed">${result.methodologyText}</p>
+                    </div>
+                </div>
+            `;
+
+            resultsDiv.innerHTML = html;
+            resultsDiv.style.display = 'block';
+        }
+
+        // Form submission
+        const form = document.getElementById('calculatorForm');
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            hideError();
+
+            const category = document.getElementById('category').value;
+            const bsrValue = document.getElementById('bsr').value;
+            const priceValue = document.getElementById('price').value;
+
+            // Validation
+            if (!category) {
+                showError('Please select a product category.');
+                return;
+            }
+
+            const bsr = Number(bsrValue.replace(/,/g, ''));
+            if (isNaN(bsr) || bsr < 1) {
+                showError('Please enter a valid Best Seller Rank (must be 1 or greater).');
+                return;
+            }
+
+            if (bsr > 10000000) {
+                showError('BSR value seems unusually high. Please verify your input.');
+                return;
+            }
+
+            const price = priceValue ? Number(priceValue) : null;
+            if (price !== null && (isNaN(price) || price <= 0)) {
+                showError('Please enter a valid price (must be greater than 0).');
+                return;
+            }
+
+            // Calculate sales
+            const { sales, method } = calculateSales(category, bsr);
+            const dailySales = Math.round(sales / 30);
+
+            const monthlyRevenue = price ? sales * price : 0;
+            const dailyRevenue = price ? dailySales * price : 0;
+            const annualRevenue = price ? monthlyRevenue * 12 : 0;
+
+            let methodologyText = '';
+            const formattedBsr = bsr.toLocaleString('en-US');
+
+            if (method === 'interpolation') {
+                methodologyText = `This estimate is interpolated from verified historical sales data for the ${category} category at BSR ${formattedBsr}, based on direct data points.`;
+            } else if (method === 'extrapolation') {
+                methodologyText = `This estimate uses power law extrapolation calibrated from historical data in the ${category} category, as the BSR is below the typical observed range.`;
+            } else {
+                methodologyText = `This estimate uses a power law regression model calibrated from extensive historical data in the ${category} category.`;
+            }
+
+            if (price) {
+                methodologyText += ` Revenue calculations based on a $${price.toFixed(2)} price point.`;
+            }
+
+            const result = {
+                monthlySales: sales,
+                dailySales: dailySales,
+                monthlyRevenue: monthlyRevenue,
+                dailyRevenue: dailyRevenue,
+                annualRevenue: annualRevenue,
+                methodologyText: methodologyText,
+            };
+
+            displayResults(result, !!price);
+        });
+
+        // Reset button
+        const resetButton = document.getElementById('resetButton');
+        resetButton.addEventListener('click', () => {
+            document.getElementById('category').value = '';
+            document.getElementById('bsr').value = '';
+            document.getElementById('price').value = '';
+            document.getElementById('resultsDisplay').style.display = 'none';
+            hideError();
+        });
+    </script>
+</body>
+</html>
