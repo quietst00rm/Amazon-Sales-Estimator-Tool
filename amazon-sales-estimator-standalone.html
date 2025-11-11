@@ -175,10 +175,18 @@
             pointer-events: none;
             user-select: none;
             color: #4b5563;
+            z-index: 10;
+            font-size: 1rem;
+            line-height: 1;
         }
 
         .dark .price-dollar {
             color: #9ca3af;
+        }
+
+        /* Ensure input text doesn't overlap with dollar sign */
+        #price {
+            padding-left: 2.5rem !important;
         }
 
         /* Consistent typography */
@@ -265,14 +273,14 @@
                         <div class="flex flex-col gap-2">
                             <label class="font-manrope font-bold text-sm text-slate-gray dark:text-soft-white/90">Product Price (Optional)</label>
                             <div class="relative">
-                                <span class="price-dollar absolute left-4 top-1/2 -translate-y-1/2 font-semibold">$</span>
+                                <span class="price-dollar absolute left-3 top-1/2 -translate-y-1/2 font-medium">$</span>
                                 <input
                                     type="number"
                                     id="price"
                                     placeholder="29.99"
                                     min="0.01"
                                     step="0.01"
-                                    class="w-full pl-9 pr-4 py-3 text-base border-2 rounded-xl bg-soft-white dark:bg-deep-navy border-slate-gray/30 dark:border-slate-gray/70 text-deep-navy dark:text-soft-white placeholder:text-slate-gray/60 dark:placeholder:text-slate-gray/40 transition-colors duration-300 focus:outline-none focus:border-bright-blue focus:ring-2 focus:ring-bright-blue/50"
+                                    class="w-full pr-4 py-3 text-base border-2 rounded-xl bg-soft-white dark:bg-deep-navy border-slate-gray/30 dark:border-slate-gray/70 text-deep-navy dark:text-soft-white placeholder:text-slate-gray/60 dark:placeholder:text-slate-gray/40 transition-colors duration-300 focus:outline-none focus:border-bright-blue focus:ring-2 focus:ring-bright-blue/50"
                                 />
                             </div>
                         </div>
