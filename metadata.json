@@ -1,0 +1,5 @@
+{
+  "name": "Amazon Sales Estimator",
+  "description": "An enhanced, user-friendly tool to calculate estimated monthly sales for Amazon products based on Best Seller Rank (BSR) and product category. Provides detailed sales and revenue projections with a visually appealing interface.",
+  "requestFramePermissions": []
+}
