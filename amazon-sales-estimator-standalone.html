@@ -73,6 +73,135 @@
         .bg-right-4 {
             background-position: right 1rem center;
         }
+
+        /* Light mode input styling - white backgrounds, dark text, light borders */
+        input:not(.dark input),
+        select:not(.dark select) {
+            background-color: #ffffff !important;
+            color: #1f2937 !important;
+            border-color: #d1d5db !important;
+        }
+
+        /* Enhanced placeholder visibility */
+        input::placeholder,
+        select::placeholder {
+            color: #9ca3af !important;
+            opacity: 1;
+        }
+
+        .dark input::placeholder,
+        .dark select::placeholder {
+            color: #6b7280 !important;
+            opacity: 1;
+        }
+
+        /* Smooth transitions for all interactive elements */
+        input, select, button {
+            transition: all 0.2s ease-in-out;
+        }
+
+        /* Enhanced focus states for accessibility */
+        input:focus,
+        select:focus {
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3) !important;
+            border-color: #2563eb !important;
+            outline: none;
+        }
+
+        /* Button active states */
+        button:active {
+            transform: scale(0.98);
+        }
+
+        /* Calculate button active state in dark mode */
+        .dark .btn-calculate:active {
+            background: linear-gradient(to right, #60a5fa, #3b82f6) !important;
+            color: #1f2937 !important;
+        }
+
+        /* Reset button enhanced states */
+        .btn-reset:hover {
+            background-color: rgba(75, 85, 99, 0.15) !important;
+        }
+
+        .dark .btn-reset:hover {
+            background-color: rgba(75, 85, 99, 0.35) !important;
+        }
+
+        .btn-reset:active {
+            background-color: rgba(75, 85, 99, 0.25) !important;
+        }
+
+        .dark .btn-reset:active {
+            background-color: rgba(75, 85, 99, 0.45) !important;
+        }
+
+        /* Loading state */
+        .loading {
+            pointer-events: none;
+            opacity: 0.7;
+            position: relative;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-left: -12px;
+            margin-top: -12px;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #ffffff;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Mobile responsiveness enhancements */
+        @media (max-width: 640px) {
+            .btn-calculate, .btn-reset {
+                padding: 1rem !important;
+                font-size: 0.875rem !important;
+            }
+        }
+
+        /* Dollar sign styling - non-interactive decoration */
+        .price-dollar {
+            pointer-events: none;
+            user-select: none;
+            color: #4b5563;
+        }
+
+        .dark .price-dollar {
+            color: #9ca3af;
+        }
+
+        /* Consistent typography */
+        label {
+            font-weight: 700;
+            letter-spacing: 0.025em;
+        }
+
+        h1, h2, h3 {
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        /* Ensure option elements are readable in both modes */
+        option {
+            background-color: #ffffff;
+            color: #1f2937;
+        }
+
+        .dark option {
+            background-color: #112444;
+            color: #f9fafb;
+        }
     </style>
 </head>
 <body class="font-sans">
@@ -99,7 +228,7 @@
                 <h1 class="font-manrope text-3xl sm:text-4xl md:text-5xl font-extrabold mb-2 text-deep-navy dark:text-soft-white">
                     Amazon Sales Estimator
                 </h1>
-                <p class="text-base sm:text-lg text-slate-gray italic">
+                <p class="text-base sm:text-lg text-slate-gray dark:text-gray-300 italic">
                     Evidence-based monthly sales predictions for Amazon sellers
                 </p>
             </header>
@@ -136,14 +265,14 @@
                         <div class="flex flex-col gap-2">
                             <label class="font-manrope font-bold text-sm text-slate-gray dark:text-soft-white/90">Product Price (Optional)</label>
                             <div class="relative">
-                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-gray pointer-events-none">$</span>
+                                <span class="price-dollar absolute left-4 top-1/2 -translate-y-1/2 font-semibold">$</span>
                                 <input
                                     type="number"
                                     id="price"
                                     placeholder="29.99"
                                     min="0.01"
                                     step="0.01"
-                                    class="w-full pl-7 px-4 py-3 text-base border-2 rounded-xl bg-soft-white dark:bg-deep-navy border-slate-gray/30 dark:border-slate-gray/70 text-deep-navy dark:text-soft-white placeholder:text-slate-gray/60 dark:placeholder:text-slate-gray/40 transition-colors duration-300 focus:outline-none focus:border-bright-blue focus:ring-2 focus:ring-bright-blue/50"
+                                    class="w-full pl-9 pr-4 py-3 text-base border-2 rounded-xl bg-soft-white dark:bg-deep-navy border-slate-gray/30 dark:border-slate-gray/70 text-deep-navy dark:text-soft-white placeholder:text-slate-gray/60 dark:placeholder:text-slate-gray/40 transition-colors duration-300 focus:outline-none focus:border-bright-blue focus:ring-2 focus:ring-bright-blue/50"
                                 />
                             </div>
                         </div>
@@ -156,14 +285,15 @@
                     <div class="flex flex-col sm:flex-row gap-4 justify-center mt-8">
                         <button
                             type="submit"
-                            class="font-manrope w-full sm:w-auto font-bold text-base uppercase tracking-wider px-10 py-4 rounded-xl bg-gradient-to-r from-bright-blue to-blue-700 text-soft-white shadow-lg shadow-bright-blue/30 hover:shadow-bright-blue/40 transition-all duration-300 transform hover:-translate-y-1"
+                            id="calculateButton"
+                            class="btn-calculate font-manrope w-full sm:w-auto font-bold text-base uppercase tracking-wider px-10 py-4 rounded-xl bg-gradient-to-r from-bright-blue to-blue-700 text-soft-white shadow-lg shadow-bright-blue/30 hover:shadow-bright-blue/40 transition-all duration-300 transform hover:-translate-y-1"
                         >
                             Calculate Sales
                         </button>
                         <button
                             type="button"
                             id="resetButton"
-                            class="font-manrope w-full sm:w-auto font-bold text-base uppercase tracking-wider px-10 py-4 rounded-xl bg-slate-gray/10 dark:bg-slate-gray/20 border-2 border-slate-gray/20 dark:border-slate-gray/50 text-slate-gray dark:text-soft-white hover:bg-slate-gray/20 dark:hover:bg-slate-gray/40 hover:border-slate-gray/40 dark:hover:border-slate-gray/70 transition-colors duration-300"
+                            class="btn-reset font-manrope w-full sm:w-auto font-bold text-base uppercase tracking-wider px-10 py-4 rounded-xl bg-slate-gray/10 dark:bg-slate-gray/20 border-2 border-slate-gray/20 dark:border-slate-gray/50 text-slate-gray dark:text-soft-white hover:bg-slate-gray/20 dark:hover:bg-slate-gray/40 hover:border-slate-gray/40 dark:hover:border-slate-gray/70 transition-colors duration-300"
                         >
                             Reset
                         </button>
@@ -362,70 +492,91 @@
 
         // Form submission
         const form = document.getElementById('calculatorForm');
+        const calculateButton = document.getElementById('calculateButton');
+
         form.addEventListener('submit', (e) => {
             e.preventDefault();
             hideError();
 
-            const category = document.getElementById('category').value;
-            const bsrValue = document.getElementById('bsr').value;
-            const priceValue = document.getElementById('price').value;
+            // Add loading state
+            calculateButton.classList.add('loading');
+            calculateButton.disabled = true;
 
-            // Validation
-            if (!category) {
-                showError('Please select a product category.');
-                return;
-            }
+            // Use setTimeout to ensure loading state is visible
+            setTimeout(() => {
+                const category = document.getElementById('category').value;
+                const bsrValue = document.getElementById('bsr').value;
+                const priceValue = document.getElementById('price').value;
 
-            const bsr = Number(bsrValue.replace(/,/g, ''));
-            if (isNaN(bsr) || bsr < 1) {
-                showError('Please enter a valid Best Seller Rank (must be 1 or greater).');
-                return;
-            }
+                // Validation
+                if (!category) {
+                    showError('Please select a product category.');
+                    calculateButton.classList.remove('loading');
+                    calculateButton.disabled = false;
+                    return;
+                }
 
-            if (bsr > 10000000) {
-                showError('BSR value seems unusually high. Please verify your input.');
-                return;
-            }
+                const bsr = Number(bsrValue.replace(/,/g, ''));
+                if (isNaN(bsr) || bsr < 1) {
+                    showError('Please enter a valid Best Seller Rank (must be 1 or greater).');
+                    calculateButton.classList.remove('loading');
+                    calculateButton.disabled = false;
+                    return;
+                }
 
-            const price = priceValue ? Number(priceValue) : null;
-            if (price !== null && (isNaN(price) || price <= 0)) {
-                showError('Please enter a valid price (must be greater than 0).');
-                return;
-            }
+                if (bsr > 10000000) {
+                    showError('BSR value seems unusually high. Please verify your input.');
+                    calculateButton.classList.remove('loading');
+                    calculateButton.disabled = false;
+                    return;
+                }
 
-            // Calculate sales
-            const { sales, method } = calculateSales(category, bsr);
-            const dailySales = Math.round(sales / 30);
+                const price = priceValue ? Number(priceValue) : null;
+                if (price !== null && (isNaN(price) || price <= 0)) {
+                    showError('Please enter a valid price (must be greater than 0).');
+                    calculateButton.classList.remove('loading');
+                    calculateButton.disabled = false;
+                    return;
+                }
 
-            const monthlyRevenue = price ? sales * price : 0;
-            const dailyRevenue = price ? dailySales * price : 0;
-            const annualRevenue = price ? monthlyRevenue * 12 : 0;
+                // Calculate sales
+                const { sales, method } = calculateSales(category, bsr);
+                const dailySales = Math.round(sales / 30);
 
-            let methodologyText = '';
-            const formattedBsr = bsr.toLocaleString('en-US');
+                const monthlyRevenue = price ? sales * price : 0;
+                const dailyRevenue = price ? dailySales * price : 0;
+                const annualRevenue = price ? monthlyRevenue * 12 : 0;
 
-            if (method === 'interpolation') {
-                methodologyText = `This estimate is interpolated from verified historical sales data for the ${category} category at BSR ${formattedBsr}, based on direct data points.`;
-            } else if (method === 'extrapolation') {
-                methodologyText = `This estimate uses power law extrapolation calibrated from historical data in the ${category} category, as the BSR is below the typical observed range.`;
-            } else {
-                methodologyText = `This estimate uses a power law regression model calibrated from extensive historical data in the ${category} category.`;
-            }
+                let methodologyText = '';
+                const formattedBsr = bsr.toLocaleString('en-US');
 
-            if (price) {
-                methodologyText += ` Revenue calculations based on a $${price.toFixed(2)} price point.`;
-            }
+                if (method === 'interpolation') {
+                    methodologyText = `This estimate is interpolated from verified historical sales data for the ${category} category at BSR ${formattedBsr}, based on direct data points.`;
+                } else if (method === 'extrapolation') {
+                    methodologyText = `This estimate uses power law extrapolation calibrated from historical data in the ${category} category, as the BSR is below the typical observed range.`;
+                } else {
+                    methodologyText = `This estimate uses a power law regression model calibrated from extensive historical data in the ${category} category.`;
+                }
 
-            const result = {
-                monthlySales: sales,
-                dailySales: dailySales,
-                monthlyRevenue: monthlyRevenue,
-                dailyRevenue: dailyRevenue,
-                annualRevenue: annualRevenue,
-                methodologyText: methodologyText,
-            };
+                if (price) {
+                    methodologyText += ` Revenue calculations based on a $${price.toFixed(2)} price point.`;
+                }
 
-            displayResults(result, !!price);
+                const result = {
+                    monthlySales: sales,
+                    dailySales: dailySales,
+                    monthlyRevenue: monthlyRevenue,
+                    dailyRevenue: dailyRevenue,
+                    annualRevenue: annualRevenue,
+                    methodologyText: methodologyText,
+                };
+
+                displayResults(result, !!price);
+
+                // Remove loading state
+                calculateButton.classList.remove('loading');
+                calculateButton.disabled = false;
+            }, 300); // Short delay to show loading state
         });
 
         // Reset button
